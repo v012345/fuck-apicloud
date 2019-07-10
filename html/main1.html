@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+        <title>Module Develop</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <style type="text/css">
+                html,
+                body {
+                        height: 100%
+                }
+
+                body {
+                        background-color: #fff;
+                        margin: 0;
+                }
+
+                #wrap {
+                        height: 100%;
+                        position: relative;
+                }
+
+                #header {
+                        padding-top: 20px;
+                        background-color: #5082c2;
+                        height: 44px;
+                        position: relative;
+                }
+
+                #header h1 {
+                        font-size: 20px;
+                        height: 44px;
+                        line-height: 44px;
+                        margin: 0em;
+                        color: #fff;
+                        margin-left: 100px;
+                        margin-right: 100px;
+                        text-align: center;
+                }
+
+                #main {
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        -webkit-box-pack: center;
+                }
+
+                a.button {
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        -webkit-box-pack: center;
+                        -webkit-box-align: center;
+                        height: 32px;
+                        margin: 8px;
+                        background-color: rgba(240, 240, 240, 1.0);
+                        border-color: rgba(220, 220, 220, 1.0);
+                        border-width: 2px;
+                        border-style: solid;
+                }
+
+                a.active {
+                        background-color: rgba(240, 240, 240, 0.7);
+                }
+        </style>
+</head>
+
+<body>
+        <div id="wrap">
+                <div id="main">
+                        <a class="button" tapmode="active" onclick="requestPermission()">权限动态申请(系统API)</a>
+                        <a class="button" tapmode="active" onclick="setLicence()">设置授权</a>
+                        <a class="button" tapmode="active" onclick="getLicenceInfo()">获取授权信息</a>
+                        <a class="button" tapmode="active" onclick="startVideoRecordActivity()">启动录制</a>
+                        <a class="button" tapmode="active" onclick="testPlay()">测试播放</a>
+                </div>
+        </div>
+</body>
+<script type="text/javascript">
+        var demo = null;
+        apiready = function() {
+                demo = api.require('txCameraRecord');
+                if (!demo) {
+                        alert("请添加模块后编译");
+                        return;
+                }
+                demo.musicListEventListener(function(ret, err) {
+                        console.log(JSON.stringify(ret) + " " + JSON.stringify(err));
+                        //alert(JSON.stringify(ret) + " " + JSON.stringify(err));
+                        if (ret.eventType == 'show') {
+                                //reloadData();
+                        } else if (ret.eventType == 'refreshHead') {
+                                reloadData();
+                        } else if (ret.eventType == 'refreshFooter') {
+                                appendData();
+                        }
+                });
+        }
+
+        function requestPermission() {
+                api.requestPermission({
+                        list: ['camera','photos','storage','microphone'],
+                }, function(ret, err) {
+                        api.alert({
+                                msg: JSON.stringify(ret)
+                        });
+                });
+        }
+
+        function setLicence() {
+                demo.setLicence({
+                        ugcLicenceUrl: 'http://download-1252463788.cossh.myqcloud.com/xiaoshipin/licence_android/TXUgcSDK.licence',
+                        ugcKey: '731ebcab46ecc59ab1571a6a837ddfb6'
+                }, function(ret, err) {
+                        alert(JSON.stringify(ret) + " " + JSON.stringify(err));
+                });
+        }
+
+        function getLicenceInfo() {
+                demo.getLicenceInfo(function(ret, err) {
+                        alert(JSON.stringify(ret) + " " + JSON.stringify(err));
+                });
+        }
+
+        var path;
+
+        function startVideoRecordActivity() {
+                demo.startVideoRecordActivity({
+                        minDuration: 5, //最短时长(秒)
+                        maxDuration: 15, //最长时长(秒)
+                        aspectRatio: 2, //视频比例 0 > 1:1 1 > 4:3 2 > 16:9
+                        recordResolution: 1, // 录制分辨率 0 > 360_640 1 > 540_960 2 > 720_1280
+                        biteRate: 3000, // 码率 600-4800
+                        fps: 25, // 帧率 15-30
+                        gop: 5, //关键帧间隔 1-10
+                        isFront: true, //是否前置摄像头 true 前置 fasle 后置 默认 true
+                        isBeauty: true, //是否显示美颜按钮 true 显示 false 隐藏 默认 true
+                        isMusic: true, //是否显示音乐按钮 true 显示 false 隐藏 默认 false
+                        isCustomMusic: true, //是否自定义音乐 true 显示 false 隐藏 默认 false
+                        //musicPath: 'http://7z2dc9.com1.z0.glb.clouddn.com/apicloud/be59ba6f9527382d655abc50f720871e.mp3',
+                        //一下是音乐列表设置
+                        data: [{
+                                imgPath: 'http://img1.3lian.com/gif/more/11/201206/a5194ba8c27b17def4a7c5495aba5e32.jpg',
+                                title: 'bandari(在线测试)',
+                                subTitle: 'bandari',
+                                //remark: '新备注',
+                                //icon: '',
+                                filePath: 'http://7z2dc9.com1.z0.glb.clouddn.com/apicloud/be59ba6f9527382d655abc50f720871e.mp3',
+                        }],
+                        rightBtns: [{
+                                bgColor: '#388e8e',
+                                activeBgColor: '',
+                                width: 70,
+                                title: '选取',
+                                titleSize: 12,
+                                titleColor: '#fff',
+                                icon: '',
+                                iconWidth: 20
+                        }],
+                        styles: {
+                                borderColor: '#696969',
+                                item: {
+                                        bgColor: '#FFFFFF',
+                                        activeBgColor: '#F5F5F5',
+                                        height: 80.0,
+                                        imgWidth: 60,
+                                        imgHeight: 60,
+                                        imgCorner: 4,
+                                        placeholderImg: 'widget://image/musiclist_img_item_music_bg.png',
+                                }
+                        },
+                        refreshHeader: {
+                                loadingImg: 'widget://res/UIListView_arrow.png',
+                                bgColor: '#F5F5F5',
+                                textColor: '#8E8E8E',
+                                textDown: '下拉可以刷新...',
+                                textUp: '松开开始刷新...',
+                                showTime: true
+                        },
+                        refreshFooter: {
+                                loadingImg: 'widget://res/UIListView_arrow.png',
+                                bgColor: '#F5F5F5',
+                                textColor: '#8E8E8E',
+                                textUp: '上拉加载更多...',
+                                textDown: '松开开始加载...',
+                                showTime: true
+                        }
+                }, function(ret, err) {
+                        alert(JSON.stringify(ret) + " " + JSON.stringify(err));
+                        if (ret.status) {
+                                path = ret.data.filePath;
+                        }
+                });
+
+        }
+
+        function reloadData() {
+                demo.reloadData({
+                        data: [{
+                                imgPath: 'http://img1.3lian.com/gif/more/11/201206/a5194ba8c27b17def4a7c5495aba5e32.jpg',
+                                title: '新标题',
+                                subTitle: '新子标题',
+                                remark: '新备注',
+                                icon: ''
+                        }]
+                }, function(ret) {
+                        //alert("reloadData>>" + JSON.stringify(ret) + " " + JSON.stringify(err));
+                });
+        }
+
+        function appendData() {
+                demo.appendData({
+                        data: [{
+                                imgPath: 'http://d.hiphotos.baidu.com/image/pic/item/4d086e061d950a7b29a788c209d162d9f2d3c922.jpg',
+                                title: '新增标题',
+                                subTitle: '新增子标题',
+                                remark: '新增备注'
+                        }]
+                }, function(ret, err) {
+                        //alert("appendData>>" + JSON.stringify(ret) + " " + JSON.stringify(err));
+                });
+        }
+
+
+        function testPlay() {
+                if (path) {
+                        api.openVideo({
+                                url: path
+                        });
+                }
+        }
+</script>
+
+</html>
